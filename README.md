@@ -1,6 +1,11 @@
 # pyromaniac
 :fire: Reload modules and classes and live-patch objects during runtime :fire:
 
+## Installation
+```sh
+pip install git+https://github.com/bornabesic/pyromaniac
+```
+
 ## Usage
 ```python
 import pyromaniac
