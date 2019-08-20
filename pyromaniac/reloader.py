@@ -10,6 +10,8 @@ import functools
 from collections import defaultdict
 import itertools
 
+from .log import LOGGER
+
 
 class Reloader(Thread):
 
@@ -99,9 +101,9 @@ class Reloader(Thread):
         for module in changed_modules:
             try:
                 new_module = importlib.reload(module)
-                print("Module", module.__name__, "reloaded.", file=sys.stderr)
+                LOGGER.info(f"Module {module.__name__} reloaded.")
             except SyntaxError as e:
-                print(f"Cannot reload module {module.__name__}: {e}", file=sys.stderr)
+                LOGGER.error(f"Cannot reload module {module.__name__}: {e}")
                 continue
 
             # Live-patch the methods of living objects
@@ -116,6 +118,7 @@ class Reloader(Thread):
                        setattr(obj, method_name, functools.partial(method, obj))
 
     def run(self):
+        LOGGER.info("Started.")
         while True:
             time.sleep(1)
             self.tick()
