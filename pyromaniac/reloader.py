@@ -102,7 +102,7 @@ class Reloader(Thread):
             try:
                 new_module = importlib.reload(module)
                 LOGGER.info(f"Module {module.__name__} reloaded.")
-            except SyntaxError as e:
+            except Exception as e:
                 LOGGER.error(f"Cannot reload module {module.__name__}: {e}")
                 continue
 
