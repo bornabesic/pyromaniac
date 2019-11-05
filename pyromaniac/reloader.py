@@ -9,16 +9,22 @@ import inspect
 import functools
 from collections import defaultdict
 import itertools
+from pathlib import Path
+from operator import contains
 
 from .log import LOGGER
+
+contains_not = lambda a, b: not contains(a, b)
 
 
 class Reloader(Thread):
 
-    def __init__(self):
+    def __init__(self, files=None, invert=False):
         super().__init__(daemon=True)
         self.mtime_cache = dict()
         self.name_class_cache = defaultdict(set)
+        self.files = set(map(lambda p: str(Path(p).resolve()), files)) if files is not None else None
+        self.files_agree_with_op = contains if not invert else contains_not
 
     @staticmethod
     def walk_objects(to_visit, objects, visited, classes):
@@ -62,6 +68,10 @@ class Reloader(Thread):
     def get_changed_modules(self):
         for module_name, module in sys.modules.items():
             if not hasattr(module, "__file__") or module.__file__ is None or not os.path.exists(module.__file__):
+                continue
+
+            changed = self.files is None or (self.files is not None and self.files_agree_with_op(self.files, module.__file__))
+            if not changed:
                 continue
 
             new_mtime = os.stat(module.__file__).st_mtime
