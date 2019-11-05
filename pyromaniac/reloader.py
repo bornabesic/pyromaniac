@@ -19,10 +19,11 @@ contains_not = lambda a, b: not contains(a, b)
 
 class Reloader(Thread):
 
-    def __init__(self, files=None, invert=False):
+    def __init__(self, tick_period=1, files=None, invert=False):
         super().__init__(daemon=True)
         self.mtime_cache = dict()
         self.name_class_cache = defaultdict(set)
+        self.tick_period = tick_period
         self.files = set(map(lambda p: str(Path(p).resolve()), files)) if files is not None else None
         self.files_agree_with_op = contains if not invert else contains_not
 
@@ -70,8 +71,8 @@ class Reloader(Thread):
             if not hasattr(module, "__file__") or module.__file__ is None or not os.path.exists(module.__file__):
                 continue
 
-            changed = self.files is None or (self.files is not None and self.files_agree_with_op(self.files, module.__file__))
-            if not changed:
+            should_check = self.files is None or (self.files is not None and self.files_agree_with_op(self.files, module.__file__))
+            if not should_check:
                 continue
 
             new_mtime = os.stat(module.__file__).st_mtime
@@ -130,5 +131,5 @@ class Reloader(Thread):
     def run(self):
         LOGGER.info("Started.")
         while True:
-            time.sleep(1)
+            time.sleep(self.tick_period)
             self.tick()
