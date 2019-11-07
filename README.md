@@ -9,6 +9,8 @@ pip install git+https://github.com/bornabesic/pyromaniac
 ## Usage
 ```python
 import pyromaniac
+reloader = pyromaniac.Reloader()
+reloader.start() # Runs the reloader in a separate thread
 ```
 
 ## Demo
