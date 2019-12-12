@@ -130,6 +130,11 @@ class Reloader(Thread):
 
     def run(self):
         LOGGER.info("Started.")
-        while True:
+        self.running = True
+        while self.running:
             time.sleep(self.tick_period)
             self.tick()
+        LOGGER.info("Stopping...")
+
+    def stop(self):
+        self.running = False
